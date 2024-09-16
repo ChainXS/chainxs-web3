@@ -1,5 +1,5 @@
 import { OutputSimulateContract, PublishedTx, SimulateContract, SimulateTx, Tx, TxBlockchainInfo, TxOutput, TxType } from "../types";
-import { BywiseHelper, Wallet } from "../utils";
+import { ChainXSHelper, Wallet } from "../utils";
 import { Web3 } from "./Web3";
 
 type BlockchainConfig = {
@@ -18,7 +18,7 @@ class ConfigTransactions {
         const tx = await this.web3.transactions.buildSimpleTx(
             wallet,
             chain,
-            BywiseHelper.ZERO_ADDRESS,
+            ChainXSHelper.ZERO_ADDRESS,
             '0',
             type,
             cfg
@@ -201,7 +201,7 @@ export class ContractActions {
     readContract = async (chain: string, contractAddress: string, method: string, inputs: string[]): Promise<TxOutput> => {
         let simulateTx: SimulateTx = {
             chain: chain,
-            from: [BywiseHelper.ZERO_ADDRESS],
+            from: [ChainXSHelper.ZERO_ADDRESS],
             to: [contractAddress],
             amount: ['0'],
             type: TxType.TX_CONTRACT_EXE,

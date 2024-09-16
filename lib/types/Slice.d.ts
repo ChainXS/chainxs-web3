@@ -1,9 +1,9 @@
-import { BywiseTransaction } from "./BywiseTransaction";
+import { ChainXSTransaction } from "./ChainXSTransaction";
 export type SliceData = {
     hash: string;
     data: string[];
 };
-export declare class Slice implements BywiseTransaction {
+export declare class Slice implements ChainXSTransaction {
     height: number;
     blockHeight: number;
     transactions: string[];

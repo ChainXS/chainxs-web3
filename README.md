@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="assets/bywise.png" width="300" alt="Bywise Web3" />
+  <img src="assets/logo.png" width="300" alt="ChainXS Web3" />
 </p>
 
-# Bywise Web3
+# ChainXS Web3
 
 ## Contributors Welcome!
-Hello, this is a relatively simple library that connects websites with the Bywise blockchain. If you have some basic working JS/TS knowledge, please head over to the open bugs/enhancements and help clear the backlog. Thanks in advance! 🤠
+Hello, this is a relatively simple library that connects websites with the ChainXS blockchain. If you have some basic working JS/TS knowledge, please head over to the open bugs/enhancements and help clear the backlog. Thanks in advance! 🤠
 
 Please don't forget to join our [discord community](https://discord.com/invite/x4TKNBQ9Gz).
 
@@ -13,18 +13,18 @@ Please don't forget to join our [discord community](https://discord.com/invite/x
 
 ## Installation
 ```sh
-npm install @bywise/web3
+npm install @chainxs/web3
 ```
 
 ## Usage
 
 Require in `javascript` as
 ```javascript
-const Web3 = require('@bywise/web3');
+const Web3 = require('@chainxs/web3');
 ```
 For `typescript`, use
 ```javascript
-import Web3 from '@bywise/web3';
+import Web3 from '@chainxs/web3';
 ```
 
 ## Operations
@@ -35,7 +35,7 @@ import Web3 from '@bywise/web3';
 const chain = 'testnet';
   
 const web3 = new Web3({
-    initialNodes: ['https://testnet-node1.bywise.org'],
+    initialNodes: ['https://testnet-node1.chainxs.com.br'],
 });
 ```
 
@@ -45,7 +45,7 @@ const web3 = new Web3({
 const chain = 'testnet';
   
 const web3 = new Web3({
-    initialNodes: ['https://testnet-node1.bywise.org'],
+    initialNodes: ['https://testnet-node1.chainxs.com.br'],
 });
   
 const wallet = web3.wallets.createWallet();
@@ -57,7 +57,7 @@ if (!(await web3.network.testConnections())) {
     throw new Error('connection failed');
 }
 
-const receiveAddress = 'BWS1MUf9c74C61328A289B74EC5eD6F8dC994e90449e9c0ca';
+const receiveAddress = 'ob2CUupRZfa1aCgvwLsbRzNpuQJUZxvnj';
 
 const tx = await web3.transactions.buildSimpleTx(wallet, chain, receiveAddress, '100');
 

@@ -1,5 +1,5 @@
-import { BywiseTransaction } from "./BywiseTransaction";
-export declare class Block implements BywiseTransaction {
+import { ChainXSTransaction } from "./ChainXSTransaction";
+export declare class Block implements ChainXSTransaction {
     height: number;
     slices: string[];
     transactionsCount: number;

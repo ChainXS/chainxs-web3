@@ -1,2 +1,2 @@
-export * from './BywiseHelper';
+export * from './ChainXSHelper';
 export * from './Wallet';

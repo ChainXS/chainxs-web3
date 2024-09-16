@@ -13,7 +13,7 @@ export class WalletsActions {
     }
 
     importWallet(seed: string) {
-        return new Wallet({ seed });
+        return new Wallet(seed);
     }
 
     getWalletInfo = async (address: string, chain: string): Promise<WalletInfo | undefined> => {

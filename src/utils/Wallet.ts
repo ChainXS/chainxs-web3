@@ -1,5 +1,7 @@
 import { ethers } from "ethers";
-import { BywiseAddressType, BywiseHelper } from "./BywiseHelper";
+import { ChainXSAddressType, ChainXSHelper } from "./ChainXSHelper";
+
+export type SignFunction = (hash: string) => Promise<string>
 
 export class Wallet {
     public readonly seed: string;
@@ -7,9 +9,9 @@ export class Wallet {
     public readonly address: string;
     private readonly account: ethers.HDNodeWallet;
 
-    constructor(config?: { isMainnet?: boolean, seed?: string }) {
-        if (config && config.seed) {
-            this.seed = config.seed;
+    constructor(seed?: string) {
+        if (seed) {
+            this.seed = seed;
         } else {
             let mnemonic = ethers.Wallet.createRandom().mnemonic
             if (!mnemonic) throw new Error('cant generate mnemonic phrase')
@@ -17,7 +19,7 @@ export class Wallet {
         }
         this.account = ethers.Wallet.fromPhrase(this.seed);
         this.publicKey = this.account.publicKey;
-        this.address = this.getAddress();
+        this.address = this.getAddress(ChainXSAddressType.EOA);
     }
 
     getExtendedPublicKey = (account: number): string => {
@@ -25,22 +27,29 @@ export class Wallet {
         return node.neuter().extendedKey;
     }
 
-    getAddress = (tag = ''): string => {
-        return BywiseHelper.encodeBWSAddress(BywiseAddressType.ADDRESS_TYPE_USER, this.account.address, tag);
+    getAddress = (type: ChainXSAddressType): string => {
+        return ChainXSHelper.encodeBWSAddress(type, this.account.address);
     }
 
-    getStealthAddress = (account: number, index: number, tag = ''): string => {
+    getStealthAddress = (account: number, index: number): string => {
         const node = ethers.HDNodeWallet.fromPhrase(this.seed).derivePath(`${account}'/${index}`);
-        return BywiseHelper.encodeBWSAddress(BywiseAddressType.ADDRESS_TYPE_STEALTH, node.address, tag);
+        return ChainXSHelper.encodeBWSAddress(ChainXSAddressType.SAA, node.address);
     }
 
-    signHash = async (hash: string): Promise<string> => {
+    signHash: SignFunction = async (hash: string): Promise<string> => {
         return (await this.account.signMessage(hash));
     }
 
     signStealthAddressHash = async (hash: string, account: number, index: number): Promise<string> => {
         const node = ethers.HDNodeWallet.fromPhrase(this.seed).derivePath(`${account}'/${index}`);
         return (await node.signMessage(hash));
+    }
+
+    signStealthAddressFunction = (account: number, index: number): SignFunction => {
+        const node = ethers.HDNodeWallet.fromPhrase(this.seed).derivePath(`${account}'/${index}`);
+        return async (hash: string) => {
+            return await node.signMessage(hash);
+        };
     }
 }
 

@@ -1,7 +1,7 @@
 import { Tx, TxType } from '../types';
 import { Wallet } from '../utils';
 
-const INVALID_ADDRESS = "BWS1MUf3fE542466114436c184001936CD72D3baeEA06c366"
+const INVALID_ADDRESS = "ob2CUupRZfa1aCgvwLsbRzNpuQJUZxvnj"
 
 test('Test transaction - v3', async () => {
     const wallet = new Wallet();
@@ -649,28 +649,28 @@ test('Test hash - v2', async () => {
         ],
         events: [
             {
-                contractAddress: 'BWS1MC66d6358c3Ed4fED092815c6a98eDB1e632EFA43317e',
+                contractAddress: 'ob2CUupRZfa1aCgvwLsbRzNpuQJuZxvnj',
                 eventName: 'transfer',
                 entries: [
-                    { key: "from", value: 'BWS1MC66d6358c3Ed4fED092815c6a98eDB1e632EFA43317e' },
-                    { key: "to", value: 'BWS1MC66d6358c3Ed4fED092815c6a98eDB1e632EFA43317e' },
+                    { key: "from", value: 'ob2CUupRZfa1aCgvwLsbRzNpuQJuZxvnj' },
+                    { key: "to", value: 'ob2CUupRZfa1aCgvwLsbRzNpuQJuZxvnj' },
                     { key: "amount", value: "1000" },
                 ],
                 hash: 'acd4373262475f224117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65'
             }
         ],
         get: [
-            'BWS1MC66d6358c3Ed4fED092815c6a98eDB1e632EFA43317e-WC'
+            'ob2CUupRZfa1aCgvwLsbRzNpuQJuZxvnj-WC'
         ],
         walletAddress: [
-            'BWS1MU66d6358c3Ed4fED092815c6a98eDB1e632EFA43317e'
+            'ob2CUupRZfa1aCgvwLsbRzNpuQJuZxvnj'
         ],
         walletAmount: [
             '100'
         ],
         envs: {
             keys: [
-                `BWS1MC66d6358c3Ed4fED092815c6a98eDB1e632EFA43317e-MC`,
+                `ob2CUupRZfa1aCgvwLsbRzNpuQJuZxvnj-MC`,
             ], values: [
                 '"1000"'
             ]
@@ -783,7 +783,7 @@ test('Test hash - v2', async () => {
 
     await expect(() => {
         const editedTX = new Tx(tx);
-        editedTX.output.events[0].contractAddress = 'BWS1MU66d6358c3Ed4fED092815c6a98eDB1e632EFA43317e';
+        editedTX.output.events[0].contractAddress = 'ob2CUupRZfa1aCgvwLsbRzNpuQJuZxvnj';
         editedTX.isValid();
     }).toThrow(MESSAGE_ERROR);
 
@@ -843,7 +843,7 @@ test('Test hash - v2', async () => {
 
     await expect(() => {
         const editedTX = new Tx(tx);
-        editedTX.output.walletAddress = ['BWS1MU66d6358c3Ed4fED092815c6a98eDB1e632EFA43317e'];
+        editedTX.output.walletAddress = ['ob2CUupRZfa1aCgvwLsbRzNpuQJuZxvnj'];
         editedTX.isValid();
     }).toThrow(MESSAGE_ERROR);
 

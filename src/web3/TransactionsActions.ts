@@ -1,5 +1,5 @@
-import { PublishedTx, SimulateTx, Tx, TxOutput, TxType } from "../types";
-import { BywiseHelper, Wallet } from "../utils";
+import { ChainXSNode, PublishedTx, SimulateTx, Tx, TxOutput, TxSyncOutput, TxType } from "../types";
+import { ChainXSHelper, SignFunction, Wallet } from "../utils";
 import { Web3 } from "./Web3";
 
 type BlockchainConfig = {
@@ -18,7 +18,7 @@ class ConfigTransactions {
         const tx = await this.web3.transactions.buildSimpleTx(
             wallet,
             chain,
-            BywiseHelper.ZERO_ADDRESS,
+            ChainXSHelper.ZERO_ADDRESS,
             '0',
             type,
             cfg
@@ -203,7 +203,7 @@ export class TransactionsActions {
         const info = await this.web3.network.getAPI(node).getInfo(node.host);
         let tx = new Tx();
         tx.chain = chain;
-        tx.version = "2";
+        tx.version = "3";
         tx.from = [wallet.address];
         tx.to = Array.isArray(to) ? to : [to];
         tx.amount = Array.isArray(amount) ? amount : [amount];
@@ -216,23 +216,9 @@ export class TransactionsActions {
         tx.foreignKeys = foreignKeys ? foreignKeys : [];
         tx.created = info.data.timestamp;
         tx.output = (await this.estimateFee(tx));
+        tx.fee = tx.output.feeUsed;
         tx.hash = tx.toHash();
         tx.sign = [await wallet.signHash(tx.hash)];
-        return tx;
-    }
-
-    signTx = async (wallets: Wallet[], tx: Tx): Promise<Tx> => {
-        if (tx.sign.length !== tx.from.length) throw new Error('from field must be the same length as sign');
-        tx.hash = tx.toHash();
-        for (let i = 0; i < tx.from.length; i++) {
-            const from = tx.from[i];
-            for (let j = 0; j < wallets.length; j++) {
-                const wallet = wallets[j];
-                if (wallet.address === from) {
-                    tx.sign[i] = await wallet.signHash(tx.hash);
-                }
-            }
-        }
         return tx;
     }
 
@@ -257,22 +243,66 @@ export class TransactionsActions {
         return simulate.data;
     }
 
-    sendTransactionSync = async (tx: Tx): Promise<TxOutput> => {
-        const error = await this.sendTransaction(tx);
-        if (error) throw new Error(`Failed send transaction - ${error}`);
-        const minedTx = await this.waitConfirmation(tx.hash, 120000);
-        if (!minedTx) throw new Error(`Timeout`);
-        if (minedTx.status === 'confirmed' || minedTx.status === 'mined') {
-            return minedTx.output;
-        } else {
-            throw new Error(`Invalidated transaction${minedTx.output ? (' - ' + minedTx.output.error) : ''}`);
+    sendTransactionSync = async (tx: Tx, sign: SignFunction[], timeoutInSeconds: number = 60): Promise<TxSyncOutput> => {
+        const node = this.web3.network.getRandomNode();
+        tx.validator = [node.address];
+
+        const simulate = await this.web3.network.getAPI(node).getFeeTransaction(node, tx);
+        if (simulate.error) {
+            throw new Error(`Internal error - details: ${simulate.error}`)
+        };
+        if (simulate.data.error) {
+            throw new Error(`Can't simulate transaction - details: ${simulate.data.error}`)
+        };
+        tx.output = simulate.data;
+        tx.fee = tx.output.feeUsed;
+        tx.hash = tx.toHash();
+        tx.sign = [];
+        for (let i = 0; i < sign.length; i++) {
+            tx.sign.push(await sign[i](tx.hash));
         }
+
+        const finalTx = await this.web3.network.getAPI(node).validadeTransaction(node, tx);
+        if (finalTx.error) {
+            throw new Error(`Internal error - details: ${finalTx.error}`)
+        };
+
+        let confirmed = false;
+        let success = false;
+        let output: TxSyncOutput = {
+            tx: tx,
+            slice: '',
+        };
+        for (let i = 0; i < timeoutInSeconds && !confirmed; i++) {
+            const slice: any = await this.web3.network.getAPI(node).getSliceByHash(node, tx.output.ctx);
+            if (!slice.error && slice.data.nextSlice) {
+                const nextSlice = await this.web3.network.getAPI(node).getSliceByHash(node, slice.data.nextSlice);
+                if (!nextSlice.error && nextSlice.data.transactions.includes(tx.hash)) {
+                    success = true;
+                    output.slice = nextSlice.data.hash
+                }
+                confirmed = true;
+            }
+            await ChainXSHelper.sleep(1000);
+        }
+        if (!success) {
+            throw new Error(`Timeout - txid: ${tx.hash}`)
+        };
+        return output;
     }
 
     sendTransaction = async (tx: Tx): Promise<string | undefined> => {
         return await this.web3.network.sendAll(async (node) => {
             return await this.web3.network.getAPI(node).publishNewTransaction(node, tx);
         });
+    }
+
+    validateTransaction = async (node: ChainXSNode, tx: Tx): Promise<PublishedTx | null> => {
+        let req = await this.web3.network.getAPI(node).validadeTransaction(node, tx);
+        if (!req.error) {
+            return req.data;
+        }
+        return null;
     }
 
     getTransactionByHash = async (txHash: string): Promise<PublishedTx | undefined> => {
@@ -302,16 +332,19 @@ export class TransactionsActions {
         });
     }
 
-    waitConfirmation = async (txHash: string, timeout: number = 30000): Promise<PublishedTx | undefined> => {
-        let uptime = Date.now();
-        let response: PublishedTx | undefined;
-        while (Date.now() < uptime + timeout) {
-            response = await this.getTransactionByHash(txHash);
-            await BywiseHelper.sleep(500);
-            if (response && response.status !== 'mempool') {
-                return response;
+    waitConfirmation = async (tx: Tx, timeoutInSeconds: number = 60): Promise<string | undefined> => {
+        const node = this.web3.network.getRandomNode();
+
+        for (let i = 0; i < timeoutInSeconds; i++) {
+            const slice: any = await this.web3.network.getAPI(node).getSliceByHash(node, tx.output.ctx);
+            if (!slice.error && slice.data.nextSlice) {
+                const nextSlice = await this.web3.network.getAPI(node).getSliceByHash(node, slice.data.nextSlice);
+                if (!nextSlice.error && nextSlice.data.transactions.includes(tx.hash)) {
+                    return nextSlice.data.hash
+                }
             }
+            await ChainXSHelper.sleep(1000);
         }
-        return response;
+        return undefined;
     }
 }

@@ -1,4 +1,4 @@
-export interface BywiseTransaction {
+export interface ChainXSTransaction {
     toHash(): string
     isValid(): void
 }

@@ -1,35 +1,33 @@
-import { BywiseApiV1, BywiseApiV2, BywiseNode, BywiseResponse } from "../types";
-import { BywiseApiV2_WS } from "../types/BywiseApiV2_WS";
+import { ChainXSApiV2, ChainXSNode, ChainXSResponse } from "../types";
+import { ChainXSApiV2_WS } from "../types/ChainXSApiV2_WS";
 
-export type SendAction = (node: BywiseNode) => Promise<BywiseResponse<any>>
-export type FilterAction<T> = (node: BywiseNode) => Promise<T | undefined>
+export type SendAction = (node: ChainXSNode) => Promise<ChainXSResponse<any>>
+export type FilterAction<T> = (node: ChainXSNode) => Promise<T | undefined>
 
 export type NetworkConfigs = {
     isClient: boolean,
     myHost: string,
     initialNodes: string[],
     maxConnectedNodes: number,
-    createConnection?: () => Promise<BywiseNode>
+    createConnection?: () => Promise<ChainXSNode>
     debug: boolean,
 };
 
 export class NetworkActions {
-    private readonly apiWS: BywiseApiV2_WS;
-    private readonly api: BywiseApiV2;
-    private readonly apiv1: BywiseApiV1;
+    private readonly apiWS: ChainXSApiV2_WS;
+    private readonly api: ChainXSApiV2;
     public readonly isClient: boolean;
     public readonly myHost: string;
     public readonly maxConnectedNodes: number;
     public initialNodes: string[];
     public isConnected: boolean = false;
-    public connectedNodes: BywiseNode[] = [];
+    public connectedNodes: ChainXSNode[] = [];
     public knowHosts: string[] = [];
 
     constructor(configs: NetworkConfigs) {
         this.maxConnectedNodes = configs.maxConnectedNodes;
-        this.apiv1 = new BywiseApiV1(configs.debug);
-        this.api = new BywiseApiV2(configs.debug);
-        this.apiWS = new BywiseApiV2_WS(configs.debug);
+        this.api = new ChainXSApiV2(configs.debug);
+        this.apiWS = new ChainXSApiV2_WS(configs.debug);
         this.initialNodes = configs.initialNodes;
         this.myHost = configs.myHost;
         this.isClient = configs.isClient;
@@ -39,7 +37,7 @@ export class NetworkActions {
     }
 
     private createConnection = async () => {
-        return new BywiseNode({});
+        return new ChainXSNode({});
     }
 
     exportConnections = () => {
@@ -54,7 +52,7 @@ export class NetworkActions {
         this.connectedNodes = payload.connectedNodes;
     }
 
-    getAPI(node: BywiseNode) {
+    getAPI(node: ChainXSNode) {
         if(node.host.startsWith("ws")) {
             return this.apiWS;
         } else {
@@ -62,7 +60,7 @@ export class NetworkActions {
         }
     }
 
-    private async tryConnectNode(host: string): Promise<BywiseNode | null> {
+    private async tryConnectNode(host: string): Promise<ChainXSNode | null> {
         let myNode = undefined;
         if (!this.isClient) {
             myNode = await this.createConnection();
@@ -88,7 +86,7 @@ export class NetworkActions {
             this.initialNodes = initialNodes;
         }
         const now = Math.floor(Date.now() / 1000);
-        let connectedNodes: BywiseNode[] = [];
+        let connectedNodes: ChainXSNode[] = [];
         for (let i = this.connectedNodes.length - 1; i >= 0; i--) {
             const node = this.connectedNodes[i];
             if (node.expire && node.expire < now) {
@@ -186,7 +184,7 @@ export class NetworkActions {
         return success;
     }
 
-    addNode = (node: BywiseNode) => {
+    addNode = (node: ChainXSNode) => {
         if (node.host === this.myHost) {
             return;
         }
@@ -206,7 +204,7 @@ export class NetworkActions {
 
     getRandomNode = (chain?: string) => {
         if (!this.isConnected) throw new Error('First connect to blockchain - "web3.network.connect()"');
-        let chainNodes: BywiseNode[] = [];
+        let chainNodes: ChainXSNode[] = [];
         if (chain) {
             this.connectedNodes.forEach(n => {
                 if (n.chains.includes(chain)) {

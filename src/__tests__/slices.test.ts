@@ -1,7 +1,7 @@
 import { Slice } from '../types';
 import { Wallet } from '../utils';
 
-const INVALID_ADDRESS = "BWS1MUf3fE542466114436c184001936CD72D3baeEA06c366"
+const INVALID_ADDRESS = "ob2CuupRZfa1aCgvwLsbRzNpuQJuZxvnj"
 
 test('Test version - v2', async () => {
     const w1 = new Wallet();
@@ -307,7 +307,7 @@ test('Test transactions - v2', async () => {
         slice.isValid();
     }).not.toThrow();
 
-    slice.transactions = ['asdfasdf'];
+    slice.transactions = ['aaaaaaaa'];
     slice.transactionsCount = 1;
     slice.hash = slice.toHash();
     slice.sign = await w1.signHash(slice.hash);

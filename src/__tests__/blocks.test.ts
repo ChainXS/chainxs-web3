@@ -1,7 +1,7 @@
 import { Block } from '../types';
 import { Wallet } from '../utils';
 
-const INVALID_ADDRESS = "BWS1MUf3fE542466114436c184001936CD72D3baeEA06c366"
+const INVALID_ADDRESS = "ob2CuupRZfa1aCgvwLsbRzNpuQJuZxvnj"
 
 test('Test version - v2', async () => {
     const w1 = new Wallet();
@@ -223,7 +223,7 @@ test('Test slices - v2', async () => {
         block.isValid();
     }).not.toThrow();
 
-    block.slices = ['asdfasdf'];
+    block.slices = ['aaaaaa'];
     block.hash = block.toHash();
     block.sign = await w1.signHash(block.hash);
     await expect(() => {
@@ -345,7 +345,7 @@ test('Test lastHash - v2', async () => {
         block.isValid();
     }).toThrow();
 
-    block.lastHash = 'acd4373262475f224117f1a9113d0471e3117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65'; // long
+    block.lastHash = 'acd4373262475f224117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65aa'; // long
     block.hash = block.toHash();
     block.sign = await w1.signHash(block.hash);
     await expect(() => {
@@ -353,11 +353,9 @@ test('Test lastHash - v2', async () => {
     }).toThrow();
     
     block.lastHash = 'XXX4373262475f224117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65'; // not hex
-    block.hash = block.toHash();
-    block.sign = await w1.signHash(block.hash);
     await expect(() => {
         block.isValid();
-    }).toThrow();
+    }).toThrow('invalid lastHash XXX4373262475f224117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65');
 });
 
 test('Test hash - v2', async () => {

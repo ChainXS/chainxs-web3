@@ -1,29 +1,29 @@
-import { Network, BywiseNode, BywiseApiV2 } from "../types";
+import { Network, ChainXSNode, ChainXSApiV2 } from "../types";
 import { WalletsActions } from "./WalletsActions";
 import { BlocksActions } from "./BlocksActions";
 import { NetworkActions, NetworkConfigs } from "./NetworkActions";
 import { SlicesActions } from "./SlicesActions";
 import { TransactionsActions } from "./TransactionsActions";
 import { ContractActions } from "./ContractActions";
-import { BywiseApiV2_WS } from "../types/BywiseApiV2_WS";
+import { ChainXSApiV2_WS } from "../types/ChainXSApiV2_WS";
 
 
 const defaultNetwork: { mainnet: Network, testnet: Network } = {
     mainnet: {
         chain: 'mainnet',
         nodes: [
-            'https://node0.bywise.org',
-            'https://node1.bywise.org',
+            'https://node0.chainxs.com.br',
+            'https://node1.chainxs.com.br',
         ],
-        explorer: 'https://explorer.bywise.org'
+        explorer: 'https://explorer.chainxs.com.br'
     },
     testnet: {
         chain: 'testnet',
         nodes: [
-            'https://testnet-node0.bywise.org',
-            'https://testnet-node1.bywise.org',
+            'https://testnet-node0.chainxs.com.br',
+            'https://testnet-node1.chainxs.com.br',
         ],
-        explorer: 'https://testnet.bywise.org'
+        explorer: 'https://testnet.chainxs.com.br'
     },
 }
 
@@ -36,19 +36,19 @@ export class Web3 {
     public readonly slices: SlicesActions;
     private readonly debug: boolean = false;
 
-    static async tryToken(node: BywiseNode) {
+    static async tryToken(node: ChainXSNode) {
         if(node.host.startsWith("ws")) {
-            const apiWS = new BywiseApiV2_WS();
+            const apiWS = new ChainXSApiV2_WS();
             const req = await apiWS.tryToken(node);
             apiWS.disconnect();
             return req;
         } else {
-            const api = new BywiseApiV2();
+            const api = new ChainXSApiV2();
             return await api.tryToken(node);
         }
     }
 
-    constructor(configs?: { initialNodes?: string[], maxConnectedNodes?: number, myHost?: string, createConnection?: () => Promise<BywiseNode>, getChains?: () => Promise<string[]>, debug?: boolean }) {
+    constructor(configs?: { initialNodes?: string[], maxConnectedNodes?: number, myHost?: string, createConnection?: () => Promise<ChainXSNode>, getChains?: () => Promise<string[]>, debug?: boolean }) {
         if (configs) {
             this.debug = configs.debug ? configs.debug : false;
         }

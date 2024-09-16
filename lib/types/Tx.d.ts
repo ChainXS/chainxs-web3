@@ -1,5 +1,5 @@
 import { Block } from "./Block";
-import { BywiseTransaction } from "./BywiseTransaction";
+import { ChainXSTransaction } from "./ChainXSTransaction";
 import { Slice } from "./Slice";
 export declare enum TxType {
     TX_NONE = "none",
@@ -18,7 +18,7 @@ export declare enum TxType {
     TX_EN_FILE = "file-encrypt",
     TX_EN_STRING = "string-encrypt"
 }
-export declare class Tx implements BywiseTransaction {
+export declare class Tx implements ChainXSTransaction {
     version: string;
     chain: string;
     validator: string[];
@@ -46,7 +46,6 @@ export type TransactionEvent = {
     contractAddress: string;
     eventName: string;
     entries: TransactionEventEntry[];
-    hash: string;
 };
 export type EnvironmentChanges = {
     keys: string[];
@@ -57,6 +56,10 @@ export type TransactionChanges = {
     walletAddress: string[];
     walletAmount: string[];
     envs: EnvironmentChanges;
+};
+export type TxSyncOutput = {
+    tx: Tx;
+    slice: string;
 };
 export type TxOutput = {
     error?: string;

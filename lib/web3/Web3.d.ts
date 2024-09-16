@@ -1,4 +1,4 @@
-import { BywiseNode } from "../types";
+import { ChainXSNode } from "../types";
 import { WalletsActions } from "./WalletsActions";
 import { BlocksActions } from "./BlocksActions";
 import { NetworkActions } from "./NetworkActions";
@@ -13,12 +13,12 @@ export declare class Web3 {
     readonly blocks: BlocksActions;
     readonly slices: SlicesActions;
     private readonly debug;
-    static tryToken(node: BywiseNode): Promise<import("../types").BywiseResponse<import("../types").InfoNode>>;
+    static tryToken(node: ChainXSNode): Promise<import("../types").ChainXSResponse<import("../types").InfoNode>>;
     constructor(configs?: {
         initialNodes?: string[];
         maxConnectedNodes?: number;
         myHost?: string;
-        createConnection?: () => Promise<BywiseNode>;
+        createConnection?: () => Promise<ChainXSNode>;
         getChains?: () => Promise<string[]>;
         debug?: boolean;
     });

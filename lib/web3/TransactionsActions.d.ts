@@ -1,5 +1,5 @@
-import { PublishedTx, Tx, TxOutput, TxType } from "../types";
-import { Wallet } from "../utils";
+import { ChainXSNode, PublishedTx, Tx, TxOutput, TxSyncOutput, TxType } from "../types";
+import { SignFunction, Wallet } from "../utils";
 import { Web3 } from "./Web3";
 declare class ConfigTransactions {
     private readonly web3;
@@ -34,10 +34,10 @@ export declare class TransactionsActions {
     buildConfig: ConfigTransactions;
     constructor(web3: Web3);
     buildSimpleTx: (wallet: Wallet, chain: string, to: string | string[], amount: string | string[], type?: TxType, data?: any, foreignKeys?: string[]) => Promise<Tx>;
-    signTx: (wallets: Wallet[], tx: Tx) => Promise<Tx>;
     estimateFee: (tx: Tx) => Promise<TxOutput>;
-    sendTransactionSync: (tx: Tx) => Promise<TxOutput>;
+    sendTransactionSync: (tx: Tx, sign: SignFunction[], timeoutInSeconds?: number) => Promise<TxSyncOutput>;
     sendTransaction: (tx: Tx) => Promise<string | undefined>;
+    validateTransaction: (node: ChainXSNode, tx: Tx) => Promise<PublishedTx | null>;
     getTransactionByHash: (txHash: string) => Promise<PublishedTx | undefined>;
     getTxs: (chain: string, parameters?: {
         offset?: number;
@@ -55,6 +55,6 @@ export declare class TransactionsActions {
             value: string;
         };
     }) => Promise<number | undefined>;
-    waitConfirmation: (txHash: string, timeout?: number) => Promise<PublishedTx | undefined>;
+    waitConfirmation: (tx: Tx, timeoutInSeconds?: number) => Promise<string | undefined>;
 }
 export {};
