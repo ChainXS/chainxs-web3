@@ -3,11 +3,10 @@
 </p>
 
 # ChainXS Web3
+This is the main package of web3.js, it contains a collection of comprehensive TypeScript libraries for Interaction with the ChainXS REST API and utility functions.
 
 ## Contributors Welcome!
 Hello, this is a relatively simple library that connects websites with the ChainXS blockchain. If you have some basic working JS/TS knowledge, please head over to the open bugs/enhancements and help clear the backlog. Thanks in advance! 🤠
-
-Please don't forget to join our [discord community](https://discord.com/invite/x4TKNBQ9Gz).
 
 ---
 
