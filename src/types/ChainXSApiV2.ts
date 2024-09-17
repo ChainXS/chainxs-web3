@@ -1,3 +1,4 @@
+import axios, { AxiosResponse } from 'axios';
 import { Tx, ChainXSNode, SimulateTx, Slice, TxOutput, InfoNode, PublishedTx, ChainXSResponse, BlockPack, OutputSimulateContract, SimulateContract } from '.';
 import { WalletInfo } from '../utils';
 import { Block, PublishedBlock } from './Block';
@@ -13,106 +14,67 @@ export class ChainXSApiV2 {
     }
 
     private async get(url: string, token: string | undefined, parameters: any = {}): Promise<ChainXSResponse<any>> {
-        let params = ''
-        if (parameters) {
-            params = '?' + (Object.entries(parameters).map(([key, value]) => {
-                if (typeof value === 'object') {
-                    return `${key}=${encodeURI(JSON.stringify(value))}`;
-                }
-                return `${key}=${encodeURI(`${value}`)}`;
-            })).join('&');
-        }
-        let response: ChainXSResponse<any> = {
-            data: {}
-        };
-
-        const AbortController = globalThis.AbortController
-        const controller = new AbortController();
-        const timeout = setTimeout(() => {
-            controller.abort();
-        }, 30000);
+        let response: ChainXSResponse<any> = { data: {} };
 
         try {
-            const req = await fetch(url + params, {
-                method: 'GET',
-                signal: controller.signal,
+            const res: AxiosResponse<any> = await axios.get(url, {
+                params: parameters,
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(token ? { 'Authorization': `Node ${token}` } : {})
+                    ...(token ? { 'Authorization': `Node ${token}` } : {}),
                 },
+                timeout: 30000,
             });
-            response.data = await req.json();
+
+            response.data = res.data;
             if (this.debug) {
-                console.log(`response`, response.data)
+                console.log(`response`, response.data);
             }
-            if (req.status < 200 || req.status >= 300) {
-                response.error = `${req.statusText} - ${response.data.error}`
-            }
+
         } catch (err: any) {
-            response.error = `${err.message}`;
-            if (err.response) {
-                response.data = err.response.data;
-                response.error = `${err.response.data.error}`;
-            }
-        } finally {
-            clearTimeout(timeout);
+            response.error = err.response ? `${err.response.statusText}: ${err.response.data.error}` : err.message;
+            response.data = err.response ? err.response.data : {};
         }
 
         if (this.debug) {
-            console.log(`get ${url + params}`)
+            console.log(`get ${url}`);
             if (response.error) {
-                console.log(response.error, response.data)
+                console.log(response.error, response.data);
             }
         }
+
         return response;
     }
 
     private async post(url: string, token: string | undefined, parameters: any = {}): Promise<ChainXSResponse<any>> {
-        let response: ChainXSResponse<any> = {
-            data: {}
-        };
-
-        const AbortController = globalThis.AbortController
-        const controller = new AbortController();
-        const timeout = setTimeout(() => {
-            controller.abort();
-        }, 30000);
+        let response: ChainXSResponse<any> = { data: {} };
 
         try {
-            const req = await fetch(url, {
-                method: 'POST',
-                signal: controller.signal,
+            const res: AxiosResponse<any> = await axios.post(url, parameters, {
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(token ? { 'Authorization': `Node ${token}` } : {})
+                    ...(token ? { 'Authorization': `Node ${token}` } : {}),
                 },
-                body: JSON.stringify(parameters)
+                timeout: 30000,
             });
-            response.data = await req.json();
 
+            response.data = res.data;
             if (this.debug) {
-                console.log(`response`, response.data)
+                console.log(`response`, response.data);
             }
 
-            if (req.status < 200 || req.status >= 300) {
-                response.error = `Error ${req.statusText}: ${response.data.error}`
-            }
         } catch (err: any) {
-            response.error = `${err.message}`;
-            if (err.response) {
-                response.data = err.response.data;
-                response.error = `${err.response.statusText}: ${err.response.data.error}`;
-            }
-        } finally {
-            clearTimeout(timeout);
+            response.error = err.response ? `${err.response.statusText}: ${err.response.data.error}` : err.message;
+            response.data = err.response ? err.response.data : {};
         }
 
         if (this.debug) {
-            console.log(`post ${url}`)
+            console.log(`post ${url}`);
             if (response.error) {
-                console.log(response.error, response.data)
+                console.log(response.error, response.data);
             }
         }
+
         return response;
     }
 
@@ -121,18 +83,11 @@ export class ChainXSApiV2 {
     }
 
     getBlocks(node: ChainXSNode, chain: string, parameters: { status?: string, offset?: number, limit?: number, asc?: boolean } = {}): Promise<ChainXSResponse<PublishedBlock[]>> {
-        let query: any = {};
-        if (parameters.offset !== undefined) query.offset = parameters.offset
-        if (parameters.limit !== undefined) query.limit = parameters.limit
-        if (parameters.asc !== undefined) query.asc = parameters.asc
-        if (parameters.status !== undefined) query.status = parameters.status
-        return this.get(`${node.host}/api/v2/blocks/last/${chain}`, node.token, query);
+        return this.get(`${node.host}/api/v2/blocks/last/${chain}`, node.token, parameters);
     }
 
     countBlocks(node: ChainXSNode, chain: string, parameters: { status?: string } = {}): Promise<ChainXSResponse<CountType>> {
-        let query: any = {};
-        if (parameters.status !== undefined) query.status = parameters.status
-        return this.get(`${node.host}/api/v2/blocks/count/${chain}`, node.token, query);
+        return this.get(`${node.host}/api/v2/blocks/count/${chain}`, node.token, parameters);
     }
 
     getBlockByHash(node: ChainXSNode, hash: string): Promise<ChainXSResponse<PublishedBlock>> {
@@ -156,18 +111,11 @@ export class ChainXSApiV2 {
     }
 
     getSlices(node: ChainXSNode, chain: string, parameters: { status?: string, offset?: number, limit?: number, asc?: boolean }): Promise<ChainXSResponse<PublishedSlice[]>> {
-        let query: any = {};
-        if (parameters.offset !== undefined) query.offset = parameters.offset
-        if (parameters.limit !== undefined) query.limit = parameters.limit
-        if (parameters.asc !== undefined) query.asc = parameters.asc
-        if (parameters.status !== undefined) query.status = parameters.status
-        return this.get(`${node.host}/api/v2/slices/last/${chain}`, node.token, query);
+        return this.get(`${node.host}/api/v2/slices/last/${chain}`, node.token, parameters);
     }
 
     countSlices(node: ChainXSNode, chain: string, parameters: { status?: string } = {}): Promise<ChainXSResponse<CountType>> {
-        let query: any = {};
-        if (parameters.status !== undefined) query.status = parameters.status
-        return this.get(`${node.host}/api/v2/slices/count/${chain}`, node.token, query);
+        return this.get(`${node.host}/api/v2/slices/count/${chain}`, node.token, parameters);
     }
 
     getSliceByHash(node: ChainXSNode, hash: string): Promise<ChainXSResponse<PublishedSlice>> {
@@ -181,31 +129,17 @@ export class ChainXSApiV2 {
     publishNewTransaction(node: ChainXSNode, tx: Tx): Promise<ChainXSResponse<void>> {
         return this.post(`${node.host}/api/v2/transactions`, node.token, tx);
     }
-    
+
     validadeTransaction(node: ChainXSNode, tx: Tx): Promise<ChainXSResponse<PublishedTx>> {
         return this.post(`${node.host}/api/v2/transactions/validate`, node.token, tx);
     }
 
     getTxs(node: ChainXSNode, chain: string, parameters: { offset?: number, limit?: number, asc?: boolean, find?: { searchBy: 'address' | 'from' | 'to' | 'key' | 'status', value: string } }): Promise<ChainXSResponse<PublishedTx[]>> {
-        let query: any = {};
-        if (parameters.find) {
-            query.searchBy = parameters.find.searchBy
-            query.value = parameters.find.value
-        }
-        if (parameters.offset !== undefined) query.offset = parameters.offset;
-        if (parameters.limit !== undefined) query.limit = parameters.limit;
-        if (parameters.asc !== undefined) query.asc = parameters.asc;
-        return this.get(`${node.host}/api/v2/transactions/last/${chain}`, node.token, query);
+        return this.get(`${node.host}/api/v2/transactions/last/${chain}`, node.token, parameters);
     }
 
     countTxs(node: ChainXSNode, parameters: { chain?: string, find?: { searchBy: 'address' | 'from' | 'to' | 'key' | 'status', value: string } }): Promise<ChainXSResponse<CountType>> {
-        let query: any = {};
-        if (parameters.find) {
-            query.searchBy = parameters.find.searchBy
-            query.value = parameters.find.value
-        }
-        if (parameters.chain !== undefined) query.chain = parameters.chain;
-        return this.get(`${node.host}/api/v2/transactions/count`, node.token, query);
+        return this.get(`${node.host}/api/v2/transactions/count`, node.token, parameters);
     }
 
     getTransactionByHash(node: ChainXSNode, hash: string): Promise<ChainXSResponse<PublishedTx>> {
