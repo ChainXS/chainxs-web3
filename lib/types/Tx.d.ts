@@ -38,14 +38,10 @@ export declare class Tx implements ChainXSTransaction {
     toHash(): string;
     isValid(): void;
 }
-export type TransactionEventEntry = {
-    key: string;
-    value: string;
-};
 export type TransactionEvent = {
     contractAddress: string;
     eventName: string;
-    entries: TransactionEventEntry[];
+    entries: string[];
 };
 export type EnvironmentChanges = {
     keys: string[];

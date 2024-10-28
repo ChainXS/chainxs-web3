@@ -4,7 +4,8 @@ import { Block, PublishedBlock } from './Block';
 import { CountType } from './ChainXSNode';
 import { PublishedSlice } from './Slice';
 import ws from 'ws';
-const randomstring = require("randomstring");
+
+const genRanHex = (size: number) => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
 
 export type WSResponse = {
     id: string;
@@ -73,7 +74,7 @@ export class ChainXSApiV2_WS {
 
     private async get(host: string, path: string, token: string | undefined, parameters: any = {}): Promise<ChainXSResponse<any>> {
         const req: WSRequest = {
-            id: randomstring.generate(40),
+            id: genRanHex(40),
             path: path,
             method: "GET",
             token,
@@ -126,7 +127,7 @@ export class ChainXSApiV2_WS {
 
     private async post(host: string, path: string, token: string | undefined, parameters: any = {}, broadcast?: boolean): Promise<ChainXSResponse<any>> {
         const req = {
-            id: randomstring.generate(40),
+            id: genRanHex(40),
             broadcast: broadcast,
             path: path,
             method: "POST",

@@ -11,53 +11,53 @@ test('encode decode address', async () => {
     for (let i = 0; i < addresses.length; i++) {
         const address = addresses[i];
 
-        let addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.CA, address))
+        let addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.CONTRACT_ACCOUNT, address))
         await expect(addressInfo.ethAddress).toBe(address);
-        await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.CA);
+        await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.CONTRACT_ACCOUNT);
 
-        addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.EOA, address))
+        addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT, address))
         await expect(addressInfo.ethAddress).toBe(address);
-        await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.EOA);
+        await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT);
 
-        addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.ESA, address))
+        addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT, address))
         await expect(addressInfo.ethAddress).toBe(address);
-        await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.ESA);
+        await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT);
 
-        addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.SAA, address))
+        addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT, address))
         await expect(addressInfo.ethAddress).toBe(address);
-        await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.SAA);
+        await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT);
     }
 });
 
 test('encode decode zero address', async () => {
     const address = "0x0000000000000000000000000000000000000000";
 
-    let addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.CA, address))
+    let addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.CONTRACT_ACCOUNT, address))
     await expect(addressInfo.ethAddress).toBe(address);
     await expect(addressInfo.bwsAddress).toBe(ChainXSHelper.ZERO_ADDRESS);
-    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.ZA);
+    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.ZERO_ACCOUNT);
 
-    addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.EOA, address))
+    addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT, address))
     await expect(addressInfo.ethAddress).toBe(address);
     await expect(addressInfo.bwsAddress).toBe(ChainXSHelper.ZERO_ADDRESS);
-    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.ZA);
+    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.ZERO_ACCOUNT);
 
-    addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.ESA, address))
+    addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT, address))
     await expect(addressInfo.ethAddress).toBe(address);
     await expect(addressInfo.bwsAddress).toBe(ChainXSHelper.ZERO_ADDRESS);
-    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.ZA);
+    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.ZERO_ACCOUNT);
 
-    addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.SAA, address))
+    addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT, address))
     await expect(addressInfo.ethAddress).toBe(address);
     await expect(addressInfo.bwsAddress).toBe(ChainXSHelper.ZERO_ADDRESS);
-    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.ZA);
+    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.ZERO_ACCOUNT);
 
     const nonZeroAddress = "0xffffffffffffffffffffffffffffffffffffffff";
 
-    addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.ZA, nonZeroAddress))
+    addressInfo = ChainXSHelper.decodeBWSAddress(ChainXSHelper.encodeBWSAddress(ChainXSAddressType.ZERO_ACCOUNT, nonZeroAddress))
     await expect(addressInfo.ethAddress).toBe(address);
     await expect(addressInfo.bwsAddress).toBe(ChainXSHelper.ZERO_ADDRESS);
-    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.ZA);
+    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.ZERO_ACCOUNT);
 });
 
 test('corrupted addresses', async () => {
@@ -71,7 +71,7 @@ test('corrupted addresses', async () => {
     for (let i = 0; i < addresses.length; i++) {
         const ethAddress = addresses[i];
 
-        const bwsAddress = ChainXSHelper.encodeBWSAddress(ChainXSAddressType.EOA, ethAddress);
+        const bwsAddress = ChainXSHelper.encodeBWSAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT, ethAddress);
 
         await expect(() => {
             ChainXSHelper.decodeBWSAddress(bwsAddress.toLowerCase());
@@ -85,7 +85,7 @@ test('corrupted addresses', async () => {
             ChainXSHelper.decodeBWSAddress('sb' + bwsAddress.substring(2));
         }).toThrow();
 
-        let addressInfo = ChainXSHelper.decodeBWSAddress('sb' + ChainXSHelper.encodeBWSAddress(ChainXSAddressType.SAA, ethAddress).substring(2));
+        let addressInfo = ChainXSHelper.decodeBWSAddress('sb' + ChainXSHelper.encodeBWSAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT, ethAddress).substring(2));
         await expect(addressInfo.ethAddress).toBe(ethAddress);
 
         await expect(() => { // change middle
@@ -109,7 +109,7 @@ test('is valid address', async () => {
     for (let i = 0; i < addresses.length; i++) {
         const ethAddress = addresses[i];
 
-        const bwsAddress = ChainXSHelper.encodeBWSAddress(ChainXSAddressType.EOA, ethAddress);
+        const bwsAddress = ChainXSHelper.encodeBWSAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT, ethAddress);
 
         let isValid = ChainXSHelper.isValidAddress(bwsAddress);
         await expect(isValid).toBe(true);
@@ -154,11 +154,11 @@ test('is valid address', async () => {
 test('test random address', async () => {
     for (let i = 0; i < 100; i++) {
         const wallet = new Wallet();
-        await expect(ChainXSHelper.isValidAddress(wallet.getAddress(ChainXSAddressType.EOA))).toBe(true);
-        await expect(ChainXSHelper.isValidAddress(wallet.getAddress(ChainXSAddressType.SAA))).toBe(true);
-        await expect(ChainXSHelper.isValidAddress(wallet.getAddress(ChainXSAddressType.ESA))).toBe(true);
-        await expect(ChainXSHelper.isValidAddress(wallet.getAddress(ChainXSAddressType.CA))).toBe(true);
-        await expect(ChainXSHelper.isValidAddress(wallet.getAddress(ChainXSAddressType.ZA))).toBe(true);
+        await expect(ChainXSHelper.isValidAddress(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT))).toBe(true);
+        await expect(ChainXSHelper.isValidAddress(wallet.getAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT))).toBe(true);
+        await expect(ChainXSHelper.isValidAddress(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT))).toBe(true);
+        await expect(ChainXSHelper.isValidAddress(wallet.getAddress(ChainXSAddressType.CONTRACT_ACCOUNT))).toBe(true);
+        await expect(ChainXSHelper.isValidAddress(wallet.getAddress(ChainXSAddressType.ZERO_ACCOUNT))).toBe(true);
     }
 });
 
@@ -180,10 +180,10 @@ test('test sign', async () => {
 test('test wallet', async () => {
     const wallet = new Wallet();
 
-    await expect(wallet.address).toBe(wallet.getAddress(ChainXSAddressType.EOA));
+    await expect(wallet.address).toBe(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT));
 
     let addressInfo = ChainXSHelper.decodeBWSAddress(wallet.getStealthAddress(0, 0));
-    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.SAA);
+    await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT);
 
     const hash1 = 'b6ad13ed5602e80229b01c691ee502530c8f4a62e10009dd48685f6f75cd1e0c';
     const hash2 = '0c8f4a62e10009d6f75cd1e0cb6ad13ed48685fd5602e80229b01c691ee50253';
@@ -238,65 +238,65 @@ test('address types CA', async () => {
 
     await expect(ChainXSHelper.isContractAddress(ChainXSHelper.newContractAddress())).toBe(true);
 
-    await expect(ChainXSHelper.isContractAddress(wallet.getAddress(ChainXSAddressType.CA))).toBe(true);
-    await expect(ChainXSHelper.isContractAddress(wallet.getAddress(ChainXSAddressType.EOA))).toBe(false);
-    await expect(ChainXSHelper.isContractAddress(wallet.getAddress(ChainXSAddressType.ESA))).toBe(false);
+    await expect(ChainXSHelper.isContractAddress(wallet.getAddress(ChainXSAddressType.CONTRACT_ACCOUNT))).toBe(true);
+    await expect(ChainXSHelper.isContractAddress(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isContractAddress(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT))).toBe(false);
     await expect(ChainXSHelper.isContractAddress('@named_account')).toBe(false);
-    await expect(ChainXSHelper.isContractAddress(wallet.getAddress(ChainXSAddressType.SAA))).toBe(false);
-    await expect(ChainXSHelper.isContractAddress(wallet.getAddress(ChainXSAddressType.ZA))).toBe(false);
+    await expect(ChainXSHelper.isContractAddress(wallet.getAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isContractAddress(wallet.getAddress(ChainXSAddressType.ZERO_ACCOUNT))).toBe(false);
 });
 
 test('address types EOA', async () => {
     const wallet = new Wallet();
 
-    await expect(ChainXSHelper.isExternalOwnedAccount(wallet.getAddress(ChainXSAddressType.CA))).toBe(false);
-    await expect(ChainXSHelper.isExternalOwnedAccount(wallet.getAddress(ChainXSAddressType.EOA))).toBe(true);
-    await expect(ChainXSHelper.isExternalOwnedAccount(wallet.getAddress(ChainXSAddressType.ESA))).toBe(false);
+    await expect(ChainXSHelper.isExternalOwnedAccount(wallet.getAddress(ChainXSAddressType.CONTRACT_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isExternalOwnedAccount(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT))).toBe(true);
+    await expect(ChainXSHelper.isExternalOwnedAccount(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT))).toBe(false);
     await expect(ChainXSHelper.isExternalOwnedAccount('@named_account')).toBe(false);
-    await expect(ChainXSHelper.isExternalOwnedAccount(wallet.getAddress(ChainXSAddressType.SAA))).toBe(false);
-    await expect(ChainXSHelper.isExternalOwnedAccount(wallet.getAddress(ChainXSAddressType.ZA))).toBe(false);
+    await expect(ChainXSHelper.isExternalOwnedAccount(wallet.getAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isExternalOwnedAccount(wallet.getAddress(ChainXSAddressType.ZERO_ACCOUNT))).toBe(false);
 });
 
 test('address types ESA', async () => {
     const wallet = new Wallet();
 
-    await expect(ChainXSHelper.isExternaSmartAccount(wallet.getAddress(ChainXSAddressType.CA))).toBe(false);
-    await expect(ChainXSHelper.isExternaSmartAccount(wallet.getAddress(ChainXSAddressType.EOA))).toBe(false);
-    await expect(ChainXSHelper.isExternaSmartAccount(wallet.getAddress(ChainXSAddressType.ESA))).toBe(true);
+    await expect(ChainXSHelper.isExternaSmartAccount(wallet.getAddress(ChainXSAddressType.CONTRACT_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isExternaSmartAccount(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isExternaSmartAccount(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT))).toBe(true);
     await expect(ChainXSHelper.isExternaSmartAccount('@named_account')).toBe(false);
-    await expect(ChainXSHelper.isExternaSmartAccount(wallet.getAddress(ChainXSAddressType.SAA))).toBe(false);
-    await expect(ChainXSHelper.isExternaSmartAccount(wallet.getAddress(ChainXSAddressType.ZA))).toBe(false);
+    await expect(ChainXSHelper.isExternaSmartAccount(wallet.getAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isExternaSmartAccount(wallet.getAddress(ChainXSAddressType.ZERO_ACCOUNT))).toBe(false);
 });
 
 test('address types NA', async () => {
     const wallet = new Wallet();
 
-    await expect(ChainXSHelper.isNamedAccount(wallet.getAddress(ChainXSAddressType.CA))).toBe(false);
-    await expect(ChainXSHelper.isNamedAccount(wallet.getAddress(ChainXSAddressType.EOA))).toBe(false);
-    await expect(ChainXSHelper.isNamedAccount(wallet.getAddress(ChainXSAddressType.ESA))).toBe(false);
+    await expect(ChainXSHelper.isNamedAccount(wallet.getAddress(ChainXSAddressType.CONTRACT_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isNamedAccount(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isNamedAccount(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT))).toBe(false);
     await expect(ChainXSHelper.isNamedAccount('@named_account')).toBe(true);
-    await expect(ChainXSHelper.isNamedAccount(wallet.getAddress(ChainXSAddressType.SAA))).toBe(false);
-    await expect(ChainXSHelper.isNamedAccount(wallet.getAddress(ChainXSAddressType.ZA))).toBe(false);
+    await expect(ChainXSHelper.isNamedAccount(wallet.getAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isNamedAccount(wallet.getAddress(ChainXSAddressType.ZERO_ACCOUNT))).toBe(false);
 });
 
 test('address types SAA', async () => {
     const wallet = new Wallet();
 
-    await expect(ChainXSHelper.isStealthAddress(wallet.getAddress(ChainXSAddressType.CA))).toBe(false);
-    await expect(ChainXSHelper.isStealthAddress(wallet.getAddress(ChainXSAddressType.EOA))).toBe(false);
-    await expect(ChainXSHelper.isStealthAddress(wallet.getAddress(ChainXSAddressType.ESA))).toBe(false);
+    await expect(ChainXSHelper.isStealthAddress(wallet.getAddress(ChainXSAddressType.CONTRACT_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isStealthAddress(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isStealthAddress(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT))).toBe(false);
     await expect(ChainXSHelper.isStealthAddress('@named_account')).toBe(false);
-    await expect(ChainXSHelper.isStealthAddress(wallet.getAddress(ChainXSAddressType.SAA))).toBe(true);
-    await expect(ChainXSHelper.isStealthAddress(wallet.getAddress(ChainXSAddressType.ZA))).toBe(false);
+    await expect(ChainXSHelper.isStealthAddress(wallet.getAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT))).toBe(true);
+    await expect(ChainXSHelper.isStealthAddress(wallet.getAddress(ChainXSAddressType.ZERO_ACCOUNT))).toBe(false);
 });
 
 test('address types ZA', async () => {
     const wallet = new Wallet();
 
-    await expect(ChainXSHelper.isZeroAddress(wallet.getAddress(ChainXSAddressType.CA))).toBe(false);
-    await expect(ChainXSHelper.isZeroAddress(wallet.getAddress(ChainXSAddressType.EOA))).toBe(false);
-    await expect(ChainXSHelper.isZeroAddress(wallet.getAddress(ChainXSAddressType.ESA))).toBe(false);
+    await expect(ChainXSHelper.isZeroAddress(wallet.getAddress(ChainXSAddressType.CONTRACT_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isZeroAddress(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isZeroAddress(wallet.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT))).toBe(false);
     await expect(ChainXSHelper.isZeroAddress('@named_account')).toBe(false);
-    await expect(ChainXSHelper.isZeroAddress(wallet.getAddress(ChainXSAddressType.SAA))).toBe(false);
-    await expect(ChainXSHelper.isZeroAddress(wallet.getAddress(ChainXSAddressType.ZA))).toBe(true);
+    await expect(ChainXSHelper.isZeroAddress(wallet.getAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT))).toBe(false);
+    await expect(ChainXSHelper.isZeroAddress(wallet.getAddress(ChainXSAddressType.ZERO_ACCOUNT))).toBe(true);
 });

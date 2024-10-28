@@ -82,10 +82,7 @@ export class Tx implements ChainXSTransaction {
                 }
                 for (let j = 0; j < event.entries.length; j++) {
                     const entry = event.entries[j];
-                    eventDTO.entries.push({
-                        key: entry.key,
-                        value: entry.value,
-                    });
+                    eventDTO.entries.push(entry);
                 }
                 this.output.events.push(eventDTO);
             }
@@ -128,7 +125,10 @@ export class Tx implements ChainXSTransaction {
                 bytes += Buffer.from(key, 'utf-8').toString('hex');;
             })
         }
+        let logs = this.output.logs;
+        this.output.logs = [];
         bytes += Buffer.from(ChainXSHelper.jsonToString(this.output), 'utf-8').toString('hex');
+        this.output.logs = logs;
         bytes += ChainXSHelper.numberToHex(this.created);
         bytes = ChainXSHelper.makeHash(bytes);
         return bytes;
@@ -190,9 +190,7 @@ export class Tx implements ChainXSTransaction {
             if (!ChainXSHelper.isValidAddress(event.contractAddress)) throw new Error('invalid event.contractAddress');
             if (!ChainXSHelper.isValidAlfaNum(event.eventName)) throw new Error('invalid event.eventName');
             event.entries.forEach(entry => {
-                if (!ChainXSHelper.isValidAlfaNum(entry.key)) throw new Error('invalid event.entries.key');
-                if (typeof entry.value !== 'string') throw new Error('invalid event.entries.value');
-                if (`${entry.value}`.length > 10000) throw new Error('invalid event.entries.value');
+                if (!ChainXSHelper.isValidHash(entry)) throw new Error('invalid event.entries');
             })
         })
         if (!ChainXSHelper.isValidAmount(this.output.feeUsed)) throw new Error('invalid feeUsed');
@@ -235,15 +233,10 @@ export class Tx implements ChainXSTransaction {
     }
 }
 
-export type TransactionEventEntry = {
-    key: string;
-    value: string;
-}
-
 export type TransactionEvent = {
     contractAddress: string;
     eventName: string;
-    entries: TransactionEventEntry[];
+    entries: string[];
 }
 
 export type EnvironmentChanges = {

@@ -19,7 +19,7 @@ export class Wallet {
         }
         this.account = ethers.Wallet.fromPhrase(this.seed);
         this.publicKey = this.account.publicKey;
-        this.address = this.getAddress(ChainXSAddressType.EOA);
+        this.address = this.getAddress(ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT);
     }
 
     getExtendedPublicKey = (account: number): string => {
@@ -33,7 +33,7 @@ export class Wallet {
 
     getStealthAddress = (account: number, index: number): string => {
         const node = ethers.HDNodeWallet.fromPhrase(this.seed).derivePath(`${account}'/${index}`);
-        return ChainXSHelper.encodeBWSAddress(ChainXSAddressType.SAA, node.address);
+        return ChainXSHelper.encodeBWSAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT, node.address);
     }
 
     signHash: SignFunction = async (hash: string): Promise<string> => {

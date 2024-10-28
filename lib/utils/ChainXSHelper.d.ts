@@ -1,10 +1,10 @@
 export declare enum ChainXSAddressType {
-    ZA = "ZERO_ACCOUNT",
-    NA = "NAMED_ACCOUNT",
-    EOA = "EXTERNALLY_OWNED_ACCOUNT",
-    ESA = "EXTERNALLY_OWNED_SMART_ACCOUNT",
-    SAA = "STEALTH_ADDRESS_ACCOUNT",
-    CA = "CONTRACT_ACCOUNT"
+    ZERO_ACCOUNT = 0,
+    EXTERNALLY_OWNED_ACCOUNT = 1,
+    EXTERNALLY_OWNED_SMART_ACCOUNT = 2,
+    STEALTH_ADDRESS_ACCOUNT = 3,
+    CONTRACT_ACCOUNT = 4,
+    NAMED_ACCOUNT = 5
 }
 export type AddressInfo = {
     typeAddress: ChainXSAddressType;
@@ -13,6 +13,7 @@ export type AddressInfo = {
 };
 export declare class ChainXSHelper {
     static readonly ZERO_ADDRESS = "000000000000000000000000000000000";
+    static readonly ETH_ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
     static makeHash(hexBytes: string): string;
     static newContractAddress: (seed?: string) => string;
     static encodeBWSAddress: (type: ChainXSAddressType, ethAddress: string) => string;

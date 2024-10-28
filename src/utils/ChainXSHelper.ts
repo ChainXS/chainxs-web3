@@ -1,12 +1,12 @@
 import { ethers, encodeBase58, sha256, decodeBase58 } from "ethers";
 
 export enum ChainXSAddressType {
-    ZA = 'ZERO_ACCOUNT',
-    NA = 'NAMED_ACCOUNT',
-    EOA = 'EXTERNALLY_OWNED_ACCOUNT',
-    ESA = 'EXTERNALLY_OWNED_SMART_ACCOUNT',
-    SAA = 'STEALTH_ADDRESS_ACCOUNT',
-    CA = 'CONTRACT_ACCOUNT',
+    ZERO_ACCOUNT,
+    EXTERNALLY_OWNED_ACCOUNT,
+    EXTERNALLY_OWNED_SMART_ACCOUNT,
+    STEALTH_ADDRESS_ACCOUNT,
+    CONTRACT_ACCOUNT,
+    NAMED_ACCOUNT,
 }
 
 export type AddressInfo = {
@@ -17,6 +17,7 @@ export type AddressInfo = {
 
 export class ChainXSHelper {
     static readonly ZERO_ADDRESS = '000000000000000000000000000000000';
+    static readonly ETH_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
     static makeHash(hexBytes: string) {
         return sha256(sha256("0x" + hexBytes)).substring(2);
@@ -27,26 +28,26 @@ export class ChainXSHelper {
             seed = Math.random().toString();
         }
         const addr = sha256('0x' + Buffer.from(seed, 'utf-8').toString('hex')).substring(0, 42);
-        return ChainXSHelper.encodeBWSAddress(ChainXSAddressType.CA, addr);
+        return ChainXSHelper.encodeBWSAddress(ChainXSAddressType.CONTRACT_ACCOUNT, addr);
     }
 
     static encodeBWSAddress = (type: ChainXSAddressType, ethAddress: string) => {
         if (!/^0x[0-9a-fA-F]{40}$/.test(ethAddress)) throw new Error('invalid address');
-        if (ethAddress === '0x0000000000000000000000000000000000000000' || type == ChainXSAddressType.ZA) {
+        if (ethAddress === ChainXSHelper.ETH_ZERO_ADDRESS || type == ChainXSAddressType.ZERO_ACCOUNT) {
             return ChainXSHelper.ZERO_ADDRESS;
         }
         let typeAddress;
         let typeAddressId;
-        if (type == ChainXSAddressType.EOA) {
+        if (type == ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT) {
             typeAddress = 'ob'
             typeAddressId = '1'
-        } else if (type == ChainXSAddressType.ESA) {
+        } else if (type == ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT) {
             typeAddress = 'eb'
             typeAddressId = '2'
-        } else if (type == ChainXSAddressType.SAA) {
+        } else if (type == ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT) {
             typeAddress = 'sb'
             typeAddressId = '3'
-        } else if (type == ChainXSAddressType.CA) {
+        } else if (type == ChainXSAddressType.CONTRACT_ACCOUNT) {
             typeAddress = 'cb'
             typeAddressId = '4'
         } else {
@@ -65,15 +66,15 @@ export class ChainXSHelper {
         if (/^\@[0-9a-zA-Z_]{5,33}$/.test(address)) {
             return {
                 bwsAddress: address,
-                typeAddress: ChainXSAddressType.NA,
-                ethAddress: '0x0000000000000000000000000000000000000000'
+                typeAddress: ChainXSAddressType.NAMED_ACCOUNT,
+                ethAddress: ChainXSHelper.ETH_ZERO_ADDRESS
             };
         }
         if (/^[0]{33}$/.test(address)) {
             return {
                 bwsAddress: address,
-                typeAddress: ChainXSAddressType.ZA,
-                ethAddress: '0x0000000000000000000000000000000000000000'
+                typeAddress: ChainXSAddressType.ZERO_ACCOUNT,
+                ethAddress: ChainXSHelper.ETH_ZERO_ADDRESS
             };
         }
         if (!/^[oesc][b][0-9a-zA-Z]{31}$/.test(address)) throw new Error('invalid address');
@@ -82,16 +83,16 @@ export class ChainXSHelper {
         let typeAddress: ChainXSAddressType;
         let typeAddressId;
         if (addressTypeStr === 'ob') {
-            typeAddress = ChainXSAddressType.EOA
+            typeAddress = ChainXSAddressType.EXTERNALLY_OWNED_ACCOUNT
             typeAddressId = '1'
         } else if (addressTypeStr === 'eb') {
-            typeAddress = ChainXSAddressType.ESA
+            typeAddress = ChainXSAddressType.EXTERNALLY_OWNED_SMART_ACCOUNT
             typeAddressId = '2'
         } else if (addressTypeStr === 'sb') {
-            typeAddress = ChainXSAddressType.SAA
+            typeAddress = ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT
             typeAddressId = '3'
         } else if (addressTypeStr === 'cb') {
-            typeAddress = ChainXSAddressType.CA
+            typeAddress = ChainXSAddressType.CONTRACT_ACCOUNT
             typeAddressId = '4'
         } else {
             throw new Error('invalid address');
@@ -126,7 +127,7 @@ export class ChainXSHelper {
 
     static getStealthAddressFromExtendedPublicKey = (xpub: string, index: number): string => {
         const node = ethers.HDNodeWallet.fromExtendedKey(xpub).derivePath(`${index}`);
-        return ChainXSHelper.encodeBWSAddress(ChainXSAddressType.SAA, node.address);
+        return ChainXSHelper.encodeBWSAddress(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT, node.address);
     }
 
     static isContractAddress = (address: string) => {

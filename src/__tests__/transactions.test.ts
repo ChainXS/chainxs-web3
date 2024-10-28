@@ -652,11 +652,8 @@ test('Test hash - v2', async () => {
                 contractAddress: 'ob2CUupRZfa1aCgvwLsbRzNpuQJuZxvnj',
                 eventName: 'transfer',
                 entries: [
-                    { key: "from", value: 'ob2CUupRZfa1aCgvwLsbRzNpuQJuZxvnj' },
-                    { key: "to", value: 'ob2CUupRZfa1aCgvwLsbRzNpuQJuZxvnj' },
-                    { key: "amount", value: "1000" },
+                    'acd4373262475f224117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65'
                 ],
-                hash: 'acd4373262475f224117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65'
             }
         ],
         get: [
@@ -789,25 +786,13 @@ test('Test hash - v2', async () => {
 
     await expect(() => {
         const editedTX = new Tx(tx);
-        editedTX.output.events[0].entries[0].key = 'asdf';
-        editedTX.isValid();
-    }).toThrow(MESSAGE_ERROR);
-
-    await expect(() => {
-        const editedTX = new Tx(tx);
-        editedTX.output.events[0].entries[0].value = 'asdf';
+        editedTX.output.events[0].entries[0] = '9113d0471e3ddcacd4373262475f224117f1ab5aad7b72072ed728432cbf4f65';
         editedTX.isValid();
     }).toThrow(MESSAGE_ERROR);
 
     await expect(() => {
         const editedTX = new Tx(tx);
         editedTX.output.events[0].eventName = 'asdf';
-        editedTX.isValid();
-    }).toThrow(MESSAGE_ERROR);
-
-    await expect(() => {
-        const editedTX = new Tx(tx);
-        editedTX.output.events[0].hash = 'dcb5aad7b72072edacd4373262475f224117f1a9113d0471e3d728432cbf4f65';
         editedTX.isValid();
     }).toThrow(MESSAGE_ERROR);
 
