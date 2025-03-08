@@ -27,15 +27,21 @@ export declare class ChainXSHelper {
     static isStealthAddress: (address: string) => boolean;
     static isZeroAddress: (address: string) => address is "000000000000000000000000000000000";
     static isStringArray: (arr: any) => boolean;
+    static isValidBase64: (amount: string) => boolean;
     static isValidAmount: (amount: string) => boolean;
     static isValidSignedAmount: (amount: string) => boolean;
     static isValidAlfaNum: (value: string) => boolean;
     static isValidAlfaNumSlash: (value: string) => boolean;
-    static isValidHash: (value: string) => boolean;
     static isValidInteger: (height: number) => boolean;
     static isValidDate: (date: number) => boolean;
     static isValidSign: (sign: string, address: string, hash: string) => boolean;
     static jsonToString: (mainJson: any) => string;
     static numberToHex: (number: number) => string;
+    static bigintToHexString: (value: bigint, bytes?: number) => string;
     static sleep: (ms: number) => Promise<void>;
+    static bigintToBase64String: (value: bigint) => string;
+    static Base64Tobigint: (value: string) => bigint;
+    static HexStringToBase64String: (hexString: string) => string;
+    static Base64StringToHexString: (base64String: string) => string;
+    static Base64AmountToHex32: (value: string) => string;
 }

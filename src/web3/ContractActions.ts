@@ -31,21 +31,21 @@ class ConfigTransactions {
         return this.toTransaction(wallet, chain, {
             name: 'vote-block',
             input: [hash, `${height}`]
-        }, TxType.TX_BLOCKCHAIN_COMMAND)
+        }, TxType.TX_COMMAND)
     }
 
     startSlice(wallet: Wallet, chain: string, height: number): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'start-slice',
             input: [`${height}`]
-        }, TxType.TX_BLOCKCHAIN_COMMAND)
+        }, TxType.TX_COMMAND)
     }
 
     stopSlice(wallet: Wallet, chain: string, height: number): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'stop-slice',
             input: [`${height}`]
-        }, TxType.TX_BLOCKCHAIN_COMMAND)
+        }, TxType.TX_COMMAND)
     }
 
     setConfigBlockTime(wallet: Wallet, chain: string, delay: number): Promise<Tx> {
@@ -108,35 +108,35 @@ class ConfigTransactions {
         return this.toTransaction(wallet, chain, {
             name: 'setInfo',
             input: ['name', name]
-        }, TxType.TX_COMMAND_INFO)
+        }, TxType.TX_COMMAND)
     }
 
     setInfoBio(wallet: Wallet, chain: string, bio: string): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'setInfo',
             input: ['bio', bio]
-        }, TxType.TX_COMMAND_INFO)
+        }, TxType.TX_COMMAND)
     }
 
     setInfoUrl(wallet: Wallet, chain: string, url: string): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'setInfo',
             input: ['url', url]
-        }, TxType.TX_COMMAND_INFO)
+        }, TxType.TX_COMMAND)
     }
 
     setInfoPhoto(wallet: Wallet, chain: string, photo: string): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'setInfo',
             input: ['photo', photo]
-        }, TxType.TX_COMMAND_INFO)
+        }, TxType.TX_COMMAND)
     }
 
     setInfoPublicKey(wallet: Wallet, chain: string, publicKey: string): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'setInfo',
             input: ['publicKey', publicKey]
-        }, TxType.TX_COMMAND_INFO)
+        }, TxType.TX_COMMAND)
     }
 
     addAdmin(wallet: Wallet, chain: string, address: string): Promise<Tx> {
@@ -204,7 +204,7 @@ export class ContractActions {
             from: [ChainXSHelper.ZERO_ADDRESS],
             to: [contractAddress],
             amount: ['0'],
-            type: TxType.TX_CONTRACT_EXE,
+            type: TxType.TX_CONTRACT,
             data: [{ method, inputs }],
             foreignKeys: [],
         };

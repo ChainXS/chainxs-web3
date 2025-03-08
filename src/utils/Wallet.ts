@@ -37,12 +37,18 @@ export class Wallet {
     }
 
     signHash: SignFunction = async (hash: string): Promise<string> => {
-        return (await this.account.signMessage(hash));
+        hash = ChainXSHelper.Base64StringToHexString(hash);
+        let sign = await this.account.signMessage(hash);
+        sign = ChainXSHelper.HexStringToBase64String(sign);
+        return sign;
     }
 
     signStealthAddressHash = async (hash: string, account: number, index: number): Promise<string> => {
         const node = ethers.HDNodeWallet.fromPhrase(this.seed).derivePath(`${account}'/${index}`);
-        return (await node.signMessage(hash));
+        hash = ChainXSHelper.Base64StringToHexString(hash);
+        let sign = (await node.signMessage(hash));
+        sign = ChainXSHelper.HexStringToBase64String(sign);
+        return sign
     }
 
     signStealthAddressFunction = (account: number, index: number): SignFunction => {

@@ -2,76 +2,49 @@ import { Block } from "./Block";
 import { ChainXSTransaction } from "./ChainXSTransaction";
 import { Slice } from "./Slice";
 export declare enum TxType {
-    TX_NONE = "none",
-    TX_JSON = "json",
-    TX_BLOCKCHAIN_COMMAND = "blockchain-command",
-    TX_COMMAND = "command",
-    TX_COMMAND_INFO = "command-info",
-    TX_CONTRACT = "contract",
-    TX_CONTRACT_EXE = "contract-exe",
-    TX_FILE = "file",
-    TX_STRING = "string",
-    TX_EN_JSON = "json-encrypt",
-    TX_EN_COMMAND = "command-encrypt",
-    TX_EN_CONTRACT = "contract-encrypt",
-    TX_EN_CONTRACT_EXE = "contract-exe-encrypt",
-    TX_EN_FILE = "file-encrypt",
-    TX_EN_STRING = "string-encrypt"
+    TX_NONE = 0,
+    TX_COMMAND = 1,
+    TX_JSON = 2,
+    TX_CONTRACT = 3
 }
+export type TransactionEvent = {
+    contract: string;
+    name: string;
+    entries: string[];
+};
+export type TxOutput = {
+    error?: string;
+    stack?: string;
+    logs?: string[];
+    output: string;
+    fee: string;
+    ctx: string;
+    get: string[][];
+    set: string[][];
+    events: TransactionEvent[];
+};
 export declare class Tx implements ChainXSTransaction {
     version: string;
     chain: string;
     validator: string[];
     from: string[];
+    debit: string[];
     to: string[];
     amount: string[];
-    fee: string;
-    type: string;
-    foreignKeys?: string[];
-    data: any;
+    type: number;
+    data: string[];
+    output: TxOutput;
     created: number;
     hash: string;
-    validatorSign: string[];
-    output: TxOutput;
     sign: string[];
+    validatorSign: string[];
     constructor(tx?: Partial<Tx>);
     toHash(): string;
     isValid(): void;
 }
-export type TransactionEvent = {
-    contractAddress: string;
-    eventName: string;
-    entries: string[];
-};
-export type EnvironmentChanges = {
-    keys: string[];
-    values: (string | null)[];
-};
-export type TransactionChanges = {
-    get: string[];
-    walletAddress: string[];
-    walletAmount: string[];
-    envs: EnvironmentChanges;
-};
 export type TxSyncOutput = {
     tx: Tx;
     slice: string;
-};
-export type TxOutput = {
-    error?: string;
-    stack?: string;
-    output: any;
-    cost: number;
-    size: number;
-    feeUsed: string;
-    ctx: string;
-    logs: string[];
-    debit: string;
-    events: TransactionEvent[];
-    get: string[];
-    walletAddress: string[];
-    walletAmount: string[];
-    envs: EnvironmentChanges;
 };
 export type SimulateTx = {
     chain: string;
@@ -79,7 +52,7 @@ export type SimulateTx = {
     to: string[] | string;
     amount: string[] | string;
     foreignKeys?: string[];
-    type: string;
+    type: number;
     data: any;
 };
 export type SimulateContract = {

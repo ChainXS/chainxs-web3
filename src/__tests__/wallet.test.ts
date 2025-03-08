@@ -165,8 +165,8 @@ test('test random address', async () => {
 test('test sign', async () => {
     const w1 = new Wallet();
     const w2 = new Wallet();
-    const hash1 = 'b6ad13ed5602e80229b01c691ee502530c8f4a62e10009dd48685f6f75cd1e0c';
-    const hash2 = '0c8f4a62e10009d6f75cd1e0cb6ad13ed48685fd5602e80229b01c691ee50253';
+    const hash1 = ChainXSHelper.HexStringToBase64String('d48685fd5602e80229b01c691ee502530c8f4a62e10009d6f75cd1e0cb6ad13e');
+    const hash2 = ChainXSHelper.HexStringToBase64String('0c8f4a62e10009d6f75cd1e0cb6ad13ed48685fd5602e80229b01c691ee50253');
 
     const sign1 = await w1.signHash(hash1);
     const sign2 = await w2.signHash(hash1);
@@ -185,8 +185,8 @@ test('test wallet', async () => {
     let addressInfo = ChainXSHelper.decodeBWSAddress(wallet.getStealthAddress(0, 0));
     await expect(addressInfo.typeAddress).toBe(ChainXSAddressType.STEALTH_ADDRESS_ACCOUNT);
 
-    const hash1 = 'b6ad13ed5602e80229b01c691ee502530c8f4a62e10009dd48685f6f75cd1e0c';
-    const hash2 = '0c8f4a62e10009d6f75cd1e0cb6ad13ed48685fd5602e80229b01c691ee50253';
+    const hash1 = ChainXSHelper.HexStringToBase64String('d48685fd5602e80229b01c691ee502530c8f4a62e10009d6f75cd1e0cb6ad13e');
+    const hash2 = ChainXSHelper.HexStringToBase64String('0c8f4a62e10009d6f75cd1e0cb6ad13ed48685fd5602e80229b01c691ee50253');
     const stealthAddress1 = wallet.getStealthAddress(0, 1);
     const stealthAddress2 = wallet.getStealthAddress(0, 2);
     const sign1 = await wallet.signStealthAddressHash(hash1, 0, 1);

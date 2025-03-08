@@ -50,18 +50,21 @@ export class Slice implements ChainXSTransaction {
 
     toHash(): string {
         let bytes = '';
+        bytes += Buffer.from(this.version, 'utf-8').toString('hex');
+        bytes += Buffer.from(this.chain, 'utf-8').toString('hex');
         bytes += ChainXSHelper.numberToHex(this.height);
         bytes += ChainXSHelper.numberToHex(this.blockHeight);
         bytes += ChainXSHelper.numberToHex(this.transactionsCount);
-        bytes += Buffer.from(this.version, 'utf-8').toString('hex');
-        bytes += Buffer.from(this.chain, 'utf-8').toString('hex');
-        bytes += Buffer.from(this.from, 'utf-8').toString('hex');
         bytes += ChainXSHelper.numberToHex(this.created);
-        bytes += Buffer.from(this.end ? 'true' : 'false', 'utf-8').toString('hex');
-        bytes += this.lastHash;
-        bytes += this.getMerkleRoot();
+        bytes += this.end ? '01' : '00';
+        bytes += Buffer.from(this.from, 'utf-8').toString('hex');
+        bytes += ChainXSHelper.Base64StringToHexString(this.lastHash);
+        this.transactions.forEach(hash => {
+            bytes += ChainXSHelper.Base64StringToHexString(hash);
+        })
+        
         bytes = ChainXSHelper.makeHash(bytes);
-        return bytes;
+        return ChainXSHelper.HexStringToBase64String(bytes);
     }
 
     isValid(): void {
@@ -76,12 +79,12 @@ export class Slice implements ChainXSTransaction {
         if (this.transactions.length !== this.transactionsCount) throw new Error('invalid slice length');
         for (let i = 0; i < this.transactions.length; i++) {
             let txHash = this.transactions[i];
-            if (!ChainXSHelper.isValidHash(txHash)) throw new Error(`invalid tx hash ${i} - ${txHash}`);
+            if (!ChainXSHelper.isValidBase64(txHash)) throw new Error(`invalid tx hash ${i} - ${txHash}`);
         }
         if (this.version !== '3') throw new Error('invalid version');
         if (this.chain.length === 0) throw new Error('invalid slice chain cant be empty');
         if (!ChainXSHelper.isValidAlfaNum(this.chain)) throw new Error('invalid chain');
-        if (!ChainXSHelper.isValidHash(this.lastHash)) throw new Error('invalid lastHash ' + this.lastHash);
+        if (!ChainXSHelper.isValidBase64(this.lastHash)) throw new Error('invalid lastHash ' + this.lastHash);
         if (!ChainXSHelper.isValidAddress(this.from)) throw new Error('invalid slice from address ' + this.from);
         if (!ChainXSHelper.isValidDate(this.created)) throw new Error('invalid created date');
         if (this.end !== true && this.end !== false) throw new Error('invalid slice end flag');

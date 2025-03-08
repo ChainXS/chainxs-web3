@@ -1,7 +1,26 @@
 import { Slice } from '../types';
-import { Wallet } from '../utils';
+import { ChainXSHelper, Wallet } from '../utils';
 
 const INVALID_ADDRESS = "ob2CuupRZfa1aCgvwLsbRzNpuQJuZxvnj"
+
+
+test('Test hash', async () => {
+    const slice = new Slice();
+    slice.version = '1.0';
+    slice.chain = 'mainnet';
+    slice.height = 100;
+    slice.blockHeight = 50;
+    slice.transactionsCount = 20;
+    slice.end = false
+    slice.created = 1620000000;
+    slice.from = "minerAddress";
+    slice.lastHash = Buffer.from("lastHash", 'utf-8').toString('base64');
+    slice.transactions = [Buffer.from("tx1", 'utf-8').toString('base64'), Buffer.from("tx2", 'utf-8').toString('base64')];
+    const hash = slice.toHash();
+
+    const extectedHash = ChainXSHelper.HexStringToBase64String("10746f345bd9424b64bbf794b92ab82e087d4f062bae686f10b505299f08209c");
+    await expect(hash).toBe(extectedHash);
+});
 
 test('Test version - v2', async () => {
     const w1 = new Wallet();
@@ -306,14 +325,6 @@ test('Test transactions - v2', async () => {
     await expect(() => {
         slice.isValid();
     }).not.toThrow();
-
-    slice.transactions = ['aaaaaaaa'];
-    slice.transactionsCount = 1;
-    slice.hash = slice.toHash();
-    slice.sign = await w1.signHash(slice.hash);
-    await expect(() => {
-        slice.isValid();
-    }).toThrow();
 });
 
 test('Test from - v2', async () => {

@@ -31,21 +31,21 @@ class ConfigTransactions {
         return this.toTransaction(wallet, chain, {
             name: 'vote-block',
             input: [hash, `${height}`]
-        }, TxType.TX_BLOCKCHAIN_COMMAND)
+        }, TxType.TX_COMMAND)
     }
 
     startSlice(wallet: Wallet, chain: string, height: number): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'start-slice',
             input: [`${height}`]
-        }, TxType.TX_BLOCKCHAIN_COMMAND)
+        }, TxType.TX_COMMAND)
     }
 
     stopSlice(wallet: Wallet, chain: string, height: number): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'stop-slice',
             input: [`${height}`]
-        }, TxType.TX_BLOCKCHAIN_COMMAND)
+        }, TxType.TX_COMMAND)
     }
 
     setConfigBlockTime(wallet: Wallet, chain: string, delay: number): Promise<Tx> {
@@ -108,35 +108,35 @@ class ConfigTransactions {
         return this.toTransaction(wallet, chain, {
             name: 'setInfo',
             input: ['name', name]
-        }, TxType.TX_COMMAND_INFO)
+        }, TxType.TX_COMMAND)
     }
 
     setInfoBio(wallet: Wallet, chain: string, bio: string): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'setInfo',
             input: ['bio', bio]
-        }, TxType.TX_COMMAND_INFO)
+        }, TxType.TX_COMMAND)
     }
 
     setInfoUrl(wallet: Wallet, chain: string, url: string): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'setInfo',
             input: ['url', url]
-        }, TxType.TX_COMMAND_INFO)
+        }, TxType.TX_COMMAND)
     }
 
     setInfoPhoto(wallet: Wallet, chain: string, photo: string): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'setInfo',
             input: ['photo', photo]
-        }, TxType.TX_COMMAND_INFO)
+        }, TxType.TX_COMMAND)
     }
 
     setInfoPublicKey(wallet: Wallet, chain: string, publicKey: string): Promise<Tx> {
         return this.toTransaction(wallet, chain, {
             name: 'setInfo',
             input: ['publicKey', publicKey]
-        }, TxType.TX_COMMAND_INFO)
+        }, TxType.TX_COMMAND)
     }
 
     addAdmin(wallet: Wallet, chain: string, address: string): Promise<Tx> {
@@ -209,14 +209,12 @@ export class TransactionsActions {
         tx.amount = Array.isArray(amount) ? amount : [amount];
         tx.type = type ? type : TxType.TX_NONE;
         if (type) {
-            tx.data = data ? data : {};
+            tx.data = data ? data : [];
         } else {
-            tx.data = {};
+            tx.data = [];
         }
-        tx.foreignKeys = foreignKeys ? foreignKeys : [];
         tx.created = info.data.timestamp;
         tx.output = (await this.estimateFee(tx));
-        tx.fee = tx.output.feeUsed;
         tx.hash = tx.toHash();
         tx.sign = [await wallet.signHash(tx.hash)];
         return tx;
@@ -230,7 +228,6 @@ export class TransactionsActions {
             amount: tx.amount,
             type: tx.type,
             data: tx.data,
-            foreignKeys: tx.foreignKeys,
         };
         const node = this.web3.network.getRandomNode();
         let simulate = await this.web3.network.getAPI(node).getFeeTransaction(node, simulateTx);
@@ -255,7 +252,6 @@ export class TransactionsActions {
             throw new Error(`Can't simulate transaction - details: ${simulate.data.error}`)
         };
         tx.output = simulate.data;
-        tx.fee = tx.output.feeUsed;
         tx.hash = tx.toHash();
         tx.sign = [];
         for (let i = 0; i < sign.length; i++) {

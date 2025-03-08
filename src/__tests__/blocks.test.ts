@@ -1,7 +1,24 @@
 import { Block } from '../types';
-import { Wallet } from '../utils';
+import { ChainXSHelper, Wallet } from '../utils';
 
 const INVALID_ADDRESS = "ob2CuupRZfa1aCgvwLsbRzNpuQJuZxvnj"
+
+test('Test hash', async () => {
+    const block = new Block();
+    block.version = '1.0';
+    block.chain = 'main';
+    block.height = 12345;
+    block.transactionsCount = 50;
+    block.from = "minerAddress";
+    block.created = 1620000000;
+    block.slices = [Buffer.from("slice1", 'utf-8').toString('base64'), Buffer.from("slice2", 'utf-8').toString('base64')];
+    block.lastHash = Buffer.from("previousHash", 'utf-8').toString('base64');
+    const hash = block.toHash();
+
+    const extectedHash = ChainXSHelper.HexStringToBase64String("93a6c8c5e2df2acc41e492993f706d99c40c3afe2edf600821b7b575ce389566")
+
+    await expect(hash).toBe(extectedHash);
+});
 
 test('Test version - v2', async () => {
     const w1 = new Wallet();
@@ -310,52 +327,6 @@ test('Test created - v2', async () => {
     await expect(() => {
         block.isValid();
     }).toThrow(MESSAGE_ERROR);
-});
-
-test('Test lastHash - v2', async () => {
-    const w1 = new Wallet();
-
-    const block = new Block();
-    block.version = '2';
-    block.height = 10;
-    block.chain = 'testnet';
-    block.slices = ['acd4373262475f224117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65'];
-    block.transactionsCount = 1;
-    block.from = w1.address;
-    block.created = Math.floor(Date.now() / 1000);
-    block.lastHash = 'acd4373262475f224117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65';
-    block.hash = block.toHash();
-    block.sign = await w1.signHash(block.hash);
-
-    await expect(() => {
-        block.isValid();
-    }).not.toThrow();
-
-    block.lastHash = '';
-    block.hash = block.toHash();
-    block.sign = await w1.signHash(block.hash);
-    await expect(() => {
-        block.isValid();
-    }).toThrow();
-
-    block.lastHash = 'acd437326247'; //short
-    block.hash = block.toHash();
-    block.sign = await w1.signHash(block.hash);
-    await expect(() => {
-        block.isValid();
-    }).toThrow();
-
-    block.lastHash = 'acd4373262475f224117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65aa'; // long
-    block.hash = block.toHash();
-    block.sign = await w1.signHash(block.hash);
-    await expect(() => {
-        block.isValid();
-    }).toThrow();
-    
-    block.lastHash = 'XXX4373262475f224117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65'; // not hex
-    await expect(() => {
-        block.isValid();
-    }).toThrow('invalid lastHash XXX4373262475f224117f1a9113d0471e3ddcb5aad7b72072ed728432cbf4f65');
 });
 
 test('Test hash - v2', async () => {

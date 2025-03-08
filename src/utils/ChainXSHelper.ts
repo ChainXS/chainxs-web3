@@ -162,6 +162,10 @@ export class ChainXSHelper {
         return true;
     }
 
+    static isValidBase64 = (amount: string) => {
+        return /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(amount);
+    }
+
     static isValidAmount = (amount: string) => {
         return /^(0|[1-9][0-9]{0,48})$/.test(amount);
     }
@@ -178,10 +182,6 @@ export class ChainXSHelper {
         return /^[a-zA-Z0-9_\-]{1,300}$/.test(value);
     }
 
-    static isValidHash = (value: string) => {
-        return /^[a-f0-9]{64}$/.test(value);
-    }
-
     static isValidInteger = (height: number) => {
         if (typeof height !== 'number') return false;
         return /^[0-9]{1,10}$/.test(`${height}`);
@@ -193,7 +193,12 @@ export class ChainXSHelper {
     }
 
     static isValidSign = (sign: string, address: string, hash: string) => {
+        sign = "0x"+this.Base64StringToHexString(sign);
+        hash = this.Base64StringToHexString(hash);
         if (!/^0x[a-f0-9]{130}$/.test(sign)) {
+            return false;
+        }
+        if (!/^[a-f0-9]{64}$/.test(hash)) {
             return false;
         }
         let decodedSignAddress = ChainXSHelper.decodeBWSAddress(address);
@@ -226,22 +231,79 @@ export class ChainXSHelper {
     }
 
     static numberToHex = (number: number) => {
+        if (number > 0xFFFFFFFF) {
+            throw new Error(`invalid number`);
+        }
         let hex = number.toString(16);
         if ((hex.length % 2) > 0) {
             hex = "0" + hex;
         }
-        while (hex.length < 16) {
+        while (hex.length < 8) {
             hex = "00" + hex;
         }
-        if (hex.length > 16 || number < 0) {
+        if (hex.length > 8 || number < 0) {
             throw new Error(`invalid pointer "${number}"`);
         }
         return hex;
+    }
+
+    static bigintToHexString = (value: bigint, bytes: number = 8): string => {
+        if (bytes !== 4 && bytes !== 8) {
+            throw new Error("Bytes must be either 4 or 8.");
+        }
+
+        const hexStringLength = bytes * 2;
+
+        const hexString = value.toString(16);
+
+        if (hexString.length > hexStringLength) {
+            throw new Error(`Value is too large to fit in ${bytes} bytes.`);
+        }
+
+        return hexString.padStart(hexStringLength, '0');
     }
 
     static sleep = async function sleep(ms: number) {
         await new Promise((resolve) => {
             setTimeout(resolve, ms + 10);
         });
+    }
+
+    static bigintToBase64String = (value: bigint): string => {
+        const hexString = value.toString(16);
+        const buffer = Buffer.from(hexString, 'hex');
+        return buffer.toString('base64');
+    }
+
+    static Base64Tobigint = (value: string): bigint => {
+        if(value === "") {
+            return BigInt(0);
+        }
+        const buffer = Buffer.from(value, 'base64');
+        return BigInt(`0x${buffer.toString('hex')}`);
+    }
+
+    static HexStringToBase64String = (hexString: string): string => {
+        if(hexString.startsWith('0x')) {
+            hexString = hexString.substring(2);
+        }
+        const buffer = Buffer.from(hexString, 'hex');
+        return buffer.toString('base64');
+    }
+
+    static Base64StringToHexString = (base64String: string): string => {
+        const buffer = Buffer.from(base64String, 'base64');
+        return buffer.toString('hex');
+    }
+
+    static Base64AmountToHex32 = (value: string): string => {
+        let hex = this.Base64StringToHexString(value);
+        if(hex.length > 64) {
+            throw new Error(`invalid base64 amount`);
+        }
+        while(hex.length < 64) {
+            hex = "0" + hex
+        }
+        return hex;
     }
 }
